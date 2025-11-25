@@ -71,7 +71,6 @@ datakit-pro/
 │  └─ test_models.py
 ├─ docs/
 │  └─ architecture.md
-├─ examples/
 ├─ .vscode/
 │  ├─ settings.json
 │  ├─ launch.json
