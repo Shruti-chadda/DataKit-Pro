@@ -1,120 +1,141 @@
-DataKit Pro
+# ⚙️ DataKit Pro – Machine Learning Toolkit
 
-DataKit Pro is a no-code, Streamlit-based machine learning toolkit that allows users to upload their own dataset and run a complete ML workflow without writing a single line of code.
-Upload a CSV → explore it → preprocess it → select features → train models → evaluate them → view SHAP explainability → export cleaned data and saved models.
+DataKit Pro is a **no-code, interactive machine learning tool** built with Streamlit.
+Upload any CSV dataset → preprocess → select features → train ML models → evaluate performance — all without writing a single line of code.
 
-🚀 Features
+This project is designed for **students, beginners, data analysts, and future scalability**, making ML workflows fast, visual, and easy to understand.
 
-Upload any CSV dataset
+---
 
-Data profiling & EDA
+## 🚀 Features
 
-Missing value summary
+✔ Upload any CSV dataset
+✔ Automatic data cleaning (missing values, encoding, scaling)
+✔ Feature selection (K-Best, Variance Threshold)
+✔ Supports **both classification & regression**
+✔ Multiple ML models:
 
-Descriptive statistics
+* Logistic Regression
+* Decision Tree Classifier
+* Random Forest Classifier
+* Linear Regression
+* Decision Tree Regressor
+* Random Forest Regressor
+  ✔ Automatic problem-type detection (classification vs regression)
+  ✔ Evaluation metrics:
+* Accuracy
+* Confusion Matrix
+* MSE, MAE, R² for regression
+  ✔ Simple, user-friendly Streamlit interface
 
-Correlation heatmap
+---
 
-Preprocessing
+## 📂 Project Structure
 
-Missing value imputation
+```
+DataKit-Pro/
+│
+├── app.py                 # Streamlit application
+├── requirements.txt       # Python dependencies
+├── pyproject.toml         # Optional project config
+├── README.md              # Documentation
+├── .gitignore             # Ignored files
+│
+├── ds_toolkit/            # Core ML logic
+│   ├── preprocessing.py
+│   ├── feature_select.py
+│   ├── models.py
+│   ├── explain.py
+│   └── utils.py
+│
+└── docs/
+    └── architecture.md    # Project design overview
+```
 
-Outlier removal (IQR / Z-score)
+---
 
-Encoding (One-hot / Ordinal)
+## 🧠 How It Works
 
-Scaling (Standard / MinMax)
+1️⃣ Upload a CSV file
+2️⃣ Choose the target column
+3️⃣ The app automatically detects whether it’s:
 
-Feature Selection (SelectKBest, RFE)
+* **Classification** (categorical target)
+* **Regression** (numeric target)
 
-Model Training
+4️⃣ Choose preprocessing options
+5️⃣ Select ML models
+6️⃣ Train & evaluate
+7️⃣ View accuracy, metrics, and graphs
 
-Logistic Regression
+---
 
-Decision Tree
+## 🧪 Supported Machine Learning Models
 
-Random Forest
+### Classification
 
-Train/test split + optional cross-validation
+* Logistic Regression
+* Decision Tree Classifier
+* Random Forest Classifier
 
-Model Evaluation
+### Regression
 
-Accuracy, F1-score, Confusion Matrix
+* Linear Regression
+* Decision Tree Regressor
+* Random Forest Regressor
 
-Regression metrics & plots
+---
 
-Explainability (SHAP)
+## ▶️ Running the App Locally
 
-Global feature importance
+### 1. Create a virtual environment
 
-Local explanations
-
-Export Tools
-
-Cleaned dataset
-
-Saved model pipeline
-
-Metrics and report files
-
-📁 Project Structure
-datakit-pro/
-├─ app.py
-├─ ds_toolkit/
-│  ├─ preprocessing.py
-│  ├─ feature_select.py
-│  ├─ models.py
-│  ├─ explain.py
-│  └─ utils.py
-├─ tests/
-│  ├─ test_preprocessing.py
-│  └─ test_models.py
-├─ docs/
-│  └─ architecture.md
-├─ .vscode/
-│  ├─ settings.json
-│  ├─ launch.json
-│  └─ tasks.json
-├─ requirements.txt
-├─ .gitignore
-└─ README.md
-
-▶️ How to Run
-
-Create a virtual environment:
-
+```
 python -m venv .venv
+```
 
+### 2. Activate it
 
-Activate it:
+**Windows PowerShell:**
 
-Windows: .venv\Scripts\Activate.ps1
+```
+.venv\Scripts\Activate.ps1
+```
 
-Mac/Linux: source .venv/bin/activate
+### 3. Install dependencies
 
-Install dependencies:
-
+```
 pip install -r requirements.txt
+```
 
+### 4. Run the app
 
-Run the app:
-
+```
 streamlit run app.py
+```
 
-🛠 Tech Stack
+---
 
-Python
+## 📦 Future Enhancements
 
-Streamlit
+🔸 Model explainability (SHAP, LIME)
+🔸 Automated EDA report
+🔸 Model comparison dashboard
+🔸 Save & load trained models
+🔸 Hyperparameter tuning
 
-Pandas, NumPy
+---
 
-Scikit-learn
+## 👩‍💻 Author
 
-SHAP
+**Shruti Chadda**
+Data Science & Machine Learning Enthusiast
 
-Matplotlib, Seaborn
+---
 
-📌 License
+## ⭐ Show Your Support
 
-Open-source. Free to use and extend.
+If you like this project, please ⭐ **star this repository** on GitHub!
+
+---
+
