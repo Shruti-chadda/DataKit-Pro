@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "datakit-pro"
+version = "0.1.0"
+description = "A no-code Streamlit-based machine learning toolkit for data exploration, preprocessing, feature selection, modeling, and SHAP explainability."
+authors = [
+    { name = "Shruti Chadda", email = "shrutiichaddaa@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.9"
+
+dependencies = [
+    "streamlit",
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "matplotlib",
+    "seaborn",
+    "shap",
+    "joblib"
+]
+
+[project.urls]
+Homepage = "https://github.com/Shruti-chadda/DataKit-Pro"
+Repository = "https://github.com/Shruti-chadda/DataKit-Pro"

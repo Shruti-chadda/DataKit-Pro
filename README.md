@@ -1,141 +1,116 @@
-# ⚙️ DataKit Pro – Machine Learning Toolkit
+# ⚙️ DataKit Pro – No-Code Machine Learning Toolkit
 
-DataKit Pro is a **no-code, interactive machine learning tool** built with Streamlit.
-Upload any CSV dataset → preprocess → select features → train ML models → evaluate performance — all without writing a single line of code.
+DataKit Pro is a **no-code, interactive Machine Learning application** built using **Streamlit** that allows users to upload any CSV dataset and perform the complete ML workflow **without writing a single line of code**.
 
-This project is designed for **students, beginners, data analysts, and future scalability**, making ML workflows fast, visual, and easy to understand.
+This project is designed for **students, beginners, data analysts**, and is scalable for future enhancements.
 
 ---
 
 ## 🚀 Features
 
-✔ Upload any CSV dataset
-✔ Automatic data cleaning (missing values, encoding, scaling)
-✔ Feature selection (K-Best, Variance Threshold)
-✔ Supports **both classification & regression**
-✔ Multiple ML models:
+- 📂 Upload any CSV dataset
+- 🧹 Automatic data preprocessing
+  - Missing value handling (mean, median, mode, KNN)
+  - Outlier handling (IQR, Z-Score)
+  - Encoding (One-Hot, Ordinal)
+  - Scaling (Standard, Min-Max)
+- 🧬 Feature selection
+  - K-Best
+  - Recursive Feature Elimination (RFE)
+  - Correlation-based selection
+- 🤖 Supports **both Classification & Regression**
+- 🧠 Automatic problem-type detection
+- 📊 Multiple ML models
 
-* Logistic Regression
-* Decision Tree Classifier
-* Random Forest Classifier
-* Linear Regression
-* Decision Tree Regressor
-* Random Forest Regressor
-  ✔ Automatic problem-type detection (classification vs regression)
-  ✔ Evaluation metrics:
-* Accuracy
-* Confusion Matrix
-* MSE, MAE, R² for regression
-  ✔ Simple, user-friendly Streamlit interface
+### Classification Models
 
----
+- Logistic Regression
+- Decision Tree Classifier
+- Random Forest Classifier
 
-## 📂 Project Structure
+### Regression Models
 
-```
-DataKit-Pro/
-│
-├── app.py                 # Streamlit application
-├── requirements.txt       # Python dependencies
-├── pyproject.toml         # Optional project config
-├── README.md              # Documentation
-├── .gitignore             # Ignored files
-│
-├── ds_toolkit/            # Core ML logic
-│   ├── preprocessing.py
-│   ├── feature_select.py
-│   ├── models.py
-│   ├── explain.py
-│   └── utils.py
-│
-└── docs/
-    └── architecture.md    # Project design overview
-```
+- Linear Regression
+- Decision Tree Regressor
+- Random Forest Regressor
+
+- 📈 Model evaluation
+  - Accuracy, Precision, Recall, F1-Score
+  - Confusion Matrix
+  - MSE, RMSE, MAE, R²
+- 🔍 Model Explainability using **SHAP**
+  - Feature importance (summary plot)
+  - Single prediction explanation (waterfall plot)
+- 📦 Export full report (metrics + plots + cleaned dataset) as ZIP
 
 ---
 
 ## 🧠 How It Works
 
-1️⃣ Upload a CSV file
-2️⃣ Choose the target column
-3️⃣ The app automatically detects whether it’s:
-
-* **Classification** (categorical target)
-* **Regression** (numeric target)
-
-4️⃣ Choose preprocessing options
-5️⃣ Select ML models
-6️⃣ Train & evaluate
-7️⃣ View accuracy, metrics, and graphs
-
----
-
-## 🧪 Supported Machine Learning Models
-
-### Classification
-
-* Logistic Regression
-* Decision Tree Classifier
-* Random Forest Classifier
-
-### Regression
-
-* Linear Regression
-* Decision Tree Regressor
-* Random Forest Regressor
+1. Upload a CSV file
+2. Select the target column
+3. The app automatically detects:
+   - **Classification** (categorical / few unique values)
+   - **Regression** (continuous numeric target)
+4. Apply preprocessing options
+5. Select features
+6. Train machine learning models
+7. View metrics, plots, and SHAP explanations
+8. Download a complete report
 
 ---
 
-## ▶️ Running the App Locally
+DataKit-Pro/
+│
+├── app.py # Streamlit application
+├── requirements.txt # Dependencies
+├── README.md # Documentation
+├── .gitignore
+│
+├── ds_toolkit/ # Core ML logic
+│ ├── preprocessing.py
+│ ├── feature_select.py
+│ ├── models.py
+│ ├── explain.py
+│ └── utils.py
+│
+├── docs/
+│ └── architecture.md # System design overview
 
-### 1. Create a virtual environment
+## ▶️ Run the App Locally
 
-```
+### 1️⃣ Clone the repository
+
+git clone https://github.com/Shruti-chadda/DataKit-Pro.git
+cd DataKit-Pro
+
+2️⃣ Create a virtual environment
 python -m venv .venv
-```
 
-### 2. Activate it
+3️⃣ Activate it (Windows)
+.venv\Scripts\activate
 
-**Windows PowerShell:**
-
-```
-.venv\Scripts\Activate.ps1
-```
-
-### 3. Install dependencies
-
-```
+4️⃣ Install dependencies
 pip install -r requirements.txt
-```
 
-### 4. Run the app
-
-```
+5️⃣ Run the app
 streamlit run app.py
-```
+Open the browser link shown in the terminal.
 
----
-
-## 📦 Future Enhancements
-
-🔸 Model explainability (SHAP, LIME)
+📦 Future Enhancements
 🔸 Automated EDA report
-🔸 Model comparison dashboard
-🔸 Save & load trained models
+
 🔸 Hyperparameter tuning
 
----
+🔸 Model comparison dashboard
 
-## 👩‍💻 Author
+🔸 Save & load trained models
 
-**Shruti Chadda**
+🔸 Deployment pipelines
+
+👩‍💻 Author
+Shruti Chadda
 Data Science & Machine Learning Enthusiast
 
----
-
-## ⭐ Show Your Support
-
-If you like this project, please ⭐ **star this repository** on GitHub!
-
----
-
+⭐ Support
+If you like this project, please ⭐ star the repository on GitHub!
