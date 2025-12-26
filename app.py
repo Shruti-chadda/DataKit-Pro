@@ -1,176 +1,183 @@
+# app.py
 import streamlit as st
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.metrics import accuracy_score, confusion_matrix, mean_squared_error, r2_score
+import zipfile
+from io import BytesIO
 
-# Classification Models
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
+from ds_toolkit.preprocessing import apply_preprocessing, missing_summary
+from ds_toolkit.feature_select import apply_feature_selection
+from ds_toolkit.models import train_models
+from ds_toolkit.explain import explain_model
+from ds_toolkit.utils import build_standard_report_assets
 
-# Regression Models
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.tree import DecisionTreeRegressor
-
-
+# -----------------------------------------------------
+# Page Config
+# -----------------------------------------------------
 st.set_page_config(page_title="DataKit Pro", layout="wide")
-st.title("⚙️ DataKit Pro – Adaptive ML Toolkit")
+st.title("⚙️ DataKit Pro — No-Code ML Toolkit")
+st.write("Upload → preprocess → feature select → train → explain → export")
 
-
-# -----------------------------------------------------------
-# 1. Upload dataset
-# -----------------------------------------------------------
-uploaded = st.file_uploader("📂 Upload your CSV file", type=["csv"])
+# -----------------------------------------------------
+# Upload Dataset
+# -----------------------------------------------------
+uploaded = st.file_uploader("Upload CSV file", type=["csv"])
 
 if uploaded is None:
-    st.info("Please upload a CSV to begin.")
+    st.info("Upload a CSV file to begin.")
     st.stop()
 
 df = pd.read_csv(uploaded)
 st.subheader("📄 Dataset Preview")
 st.dataframe(df.head())
-st.write(f"Shape: {df.shape[0]} rows × {df.shape[1]} columns")
 
-# -----------------------------------------------------------
-# 2. Target Selection (Adaptive)
-# -----------------------------------------------------------
-st.subheader("🎯 Target Selection")
+# -----------------------------------------------------
+# Sidebar – Preprocessing
+# -----------------------------------------------------
+st.sidebar.header("⚙️ Preprocessing")
 
-target_col = st.selectbox("Select target column", df.columns)
-y = df[target_col]
-X = df.drop(columns=[target_col])
+missing = st.sidebar.selectbox("Missing values", ["none", "mean", "median", "mode", "knn"])
+outliers = st.sidebar.selectbox("Outliers", ["none", "iqr", "zscore"])
+encoding = st.sidebar.selectbox("Encoding", ["none", "onehot", "ordinal"])
+scaling = st.sidebar.selectbox("Scaling", ["none", "standard", "minmax"])
 
-# Transform categorical target into numeric automatically
-y_original = y.copy()
+# -----------------------------------------------------
+# Target Selection
+# -----------------------------------------------------
+st.subheader("🎯 Target Column")
+target_col = st.selectbox("Select target", df.columns)
 
-if y.dtype == "object" or y.dtype.name == "category":
-    le = LabelEncoder()
-    y = le.fit_transform(y)
-    st.success(f"Automatically encoded target classes: {list(le.classes_)}")
+if st.checkbox("Show missing summary"):
+    st.write(missing_summary(df))
 
-# Check if target is regression or classification
-unique_vals = np.unique(y)
+# -----------------------------------------------------
+# Apply Preprocessing
+# -----------------------------------------------------
+if st.button("Apply Preprocessing"):
+    df_pre, scaler = apply_preprocessing(
+        df,
+        missing=missing,
+        outliers=outliers,
+        encoding=encoding,
+        scaling=scaling,
+        target_col=target_col
+    )
+    st.session_state["df_pre"] = df_pre
+    st.success("Preprocessing completed")
+    st.dataframe(df_pre.head())
 
-if len(unique_vals) <= 10 and set(unique_vals).issubset(set(range(10))):
-    problem_type = "classification"
-else:
-    problem_type = "regression"
+# -----------------------------------------------------
+# Feature Selection
+# -----------------------------------------------------
+if "df_pre" in st.session_state:
+    st.subheader("🧬 Feature Selection")
 
-st.write(f"🧠 **Detected Problem Type:** {problem_type.upper()}")
+    method = st.selectbox("Method", ["none", "kbest", "rfe", "corr"])
+    k = st.number_input("K (if applicable)", min_value=1, value=10)
 
+    if st.button("Select Features"):
+        df_pre = st.session_state["df_pre"]
+        X = df_pre.drop(columns=[target_col])
+        y = df_pre[target_col]
 
-# -----------------------------------------------------------
-# 3. Preprocessing
-# -----------------------------------------------------------
-st.subheader("🧹 Preprocessing (Automatic)")
+        X_new, cols = apply_feature_selection(X, y, method=method, k=k)
+        st.session_state["X_new"] = X_new
+        st.session_state["y"] = y
 
-X_proc = X.copy()
+        st.write("Selected features:", cols)
+        st.dataframe(X_new.head())
 
-# Fill numeric missing values
-num_cols = X_proc.select_dtypes(include=[np.number]).columns
-for c in num_cols:
-    X_proc[c] = X_proc[c].fillna(X_proc[c].median())
+# -----------------------------------------------------
+# Model Training
+# -----------------------------------------------------
+if "X_new" in st.session_state:
+    st.subheader("🤖 Model Training")
 
-# Fill categorical missing values
-cat_cols = X_proc.select_dtypes(exclude=[np.number]).columns
-for c in cat_cols:
-    X_proc[c] = X_proc[c].fillna(X_proc[c].mode().iloc[0])
+    models_to_run = st.multiselect(
+        "Choose models",
+        [
+            "logistic_regression",
+            "decision_tree",
+            "random_forest",
+            "linear_regression",
+            "decision_tree_regressor",
+            "random_forest_regressor",
+        ]
+    )
 
-# One-hot encode categoricals
-X_proc = pd.get_dummies(X_proc, drop_first=True)
+    test_size = st.slider("Test size (%)", 10, 40, 20) / 100
+    use_cv = st.checkbox("Use Cross-Validation")
+    cv_folds = st.number_input("CV folds", min_value=2, value=5)
 
-# Scale numeric features
-scaler = StandardScaler()
-num_cols_proc = X_proc.select_dtypes(include=[np.number]).columns
-X_proc[num_cols_proc] = scaler.fit_transform(X_proc[num_cols_proc])
+    if st.button("Train Models"):
+        results = train_models(
+            st.session_state["X_new"],
+            st.session_state["y"],
+            models_to_run=models_to_run,
+            test_size=test_size,
+            use_cv=use_cv,
+            cv_folds=cv_folds,
+        )
+        st.session_state["results"] = results
+        st.success("Training complete")
+        st.json(results["metrics"])
 
-st.write("Processed dataset:")
-st.dataframe(X_proc.head())
+# -----------------------------------------------------
+# SHAP Explainability (FIXED)
+# -----------------------------------------------------
+if "results" in st.session_state:
+    st.subheader("🔍 SHAP Explainability")
 
+    results = st.session_state["results"]
+    model_names = list(results["models"].keys())
 
-# -----------------------------------------------------------
-# 4. Train/Test Split
-# -----------------------------------------------------------
-st.subheader("📊 Train / Test Split")
-test_size_pct = st.slider("Test size (%)", 10, 40, 20)
-test_size = test_size_pct / 100
+    if model_names:
+        model_name = st.selectbox("Select model", model_names)
+        model = results["models"][model_name]
+        X_new = st.session_state["X_new"]
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X_proc, y, test_size=test_size, random_state=42
-)
+        with st.spinner("Computing SHAP..."):
+            explain_output = explain_model(model, X_new)
 
-st.write(f"Training rows: {X_train.shape[0]}, Test rows: {X_test.shape[0]}")
-
-
-# -----------------------------------------------------------
-# 5. Model Selection (Adaptive)
-# -----------------------------------------------------------
-st.subheader("🤖 Model Training")
-
-if problem_type == "classification":
-    model_options = {
-        "Logistic Regression": LogisticRegression(max_iter=500),
-        "Random Forest Classifier": RandomForestClassifier(n_estimators=200),
-        "SVM Classifier": SVC(),
-    }
-else:
-    model_options = {
-        "Linear Regression": LinearRegression(),
-        "Random Forest Regressor": RandomForestRegressor(n_estimators=200),
-        "Decision Tree Regressor": DecisionTreeRegressor(),
-    }
-
-models_selected = st.multiselect(
-    "Choose models to train:",
-    list(model_options.keys()),
-    default=list(model_options.keys())[:2]
-)
-
-if st.button("Train Models"):
-    results = {}
-
-    for name in models_selected:
-        model = model_options[name]
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-
-        if problem_type == "classification":
-            acc = accuracy_score(y_test, y_pred)
-            results[name] = acc
+        if explain_output:
+            st.session_state["explain_output"] = explain_output
+            st.pyplot(explain_output["summary_fig"])
+            st.pyplot(explain_output["waterfall_fig"])
         else:
-            mse = mean_squared_error(y_test, y_pred)
-            r2 = r2_score(y_test, y_pred)
-            results[name] = {"MSE": mse, "R²": r2}
+            st.warning("SHAP not supported for this model.")
 
-    st.success("Training complete!")
+# -----------------------------------------------------
+# Export Report
+# -----------------------------------------------------
+if "results" in st.session_state:
+    st.subheader("📦 Export Report")
 
-    st.write("### 📈 Results")
-    st.json(results)
+    metrics = st.session_state["results"]["metrics"]
+    images = {}
 
-    # Confusion matrix for classification only
-    if problem_type == "classification":
-        st.write("### 🧩 Confusion Matrix")
-        cm = confusion_matrix(y_test, y_pred)
+    explain_output = st.session_state.get("explain_output")
 
-        fig, ax = plt.subplots()
-        im = ax.imshow(cm, cmap="Blues")
-        ax.set_title("Confusion Matrix")
-        ax.set_xlabel("Predicted")
-        ax.set_ylabel("Actual")
+    if explain_output:
+        for key in ["summary_fig", "waterfall_fig"]:
+            buf = BytesIO()
+            explain_output[key].savefig(buf, format="png")
+            images[f"{key}.png"] = buf.getvalue()
 
-        for i in range(cm.shape[0]):
-            for j in range(cm.shape[1]):
-                ax.text(j, i, cm[i, j], ha="center", va="center")
+    cleaned_csv = st.session_state["df_pre"].to_csv(index=False).encode()
 
-        st.pyplot(fig)
+    entries = build_standard_report_assets(
+        metrics=metrics,
+        images=images,
+        cleaned_csv_bytes=cleaned_csv
+    )
 
+    zip_buffer = BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w") as z:
+        for e in entries:
+            z.writestr(e["name"], e["bytes"])
 
-# -----------------------------------------------------------
-# 6. Export (future scope placeholder)
-# -----------------------------------------------------------
-st.subheader("📦 Export Options (Future Scope)")
-st.info("Reports, model export, and pipelines will be added in future updates.")
+    st.download_button(
+        "Download Report (ZIP)",
+        zip_buffer.getvalue(),
+        file_name="datakit_pro_report.zip",
+        mime="application/zip"
+    )
